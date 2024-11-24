@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\sterile_compounding_pharmacy_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\sterile_compounding_pharmacy_data_2.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
