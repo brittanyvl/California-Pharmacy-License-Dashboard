@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\attempt_18.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\pharmacies.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\pharmacies_attempt10.csv">
           <value>
             <Attribute>
@@ -31,6 +45,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\pharmacies_attempt14.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\pharmacies_attempt15.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\pharmacies_attempt5.csv">
           <value>
             <Attribute>
@@ -46,6 +74,13 @@
           </value>
         </entry>
         <entry key="\pharmacies_attempt9.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\pharmacies_attempt_with_soup.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
