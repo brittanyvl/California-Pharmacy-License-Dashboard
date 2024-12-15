@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\zip_lat_long.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
