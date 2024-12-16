@@ -51,3 +51,5 @@ fig_licenses.update_layout(
 
 # Show the plot in Streamlit
 st.plotly_chart(fig_licenses)
+
+
