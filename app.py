@@ -12,7 +12,7 @@ available_pharmacies = pd.read_csv('available_pharmacies.csv', dtype=str)
 st.set_page_config(layout="wide")
 
 # Create a Sidebar Menu
-menu = st.sidebar.radio("Select a Page", ["Introduction", "Pharmacy Search", "License Analysis", "About"])
+menu = st.sidebar.radio("", ["Introduction", "License Analysis", "Pharmacy Search", "About"])
 
 if menu == "Introduction":
     # Introduction Page
@@ -32,8 +32,8 @@ if menu == "Introduction":
 
     st.markdown("""
     This app is meant to:
-    - **Highlight** the current shortage of licensed sterile compounding pharmacies within the state of California. 
-    - **Educate** patients and providers on how to verify a supplier is licensed to dispense sterile drugs in California.
+    - **Educate** the public on the the small number of licensed sterile compounding pharmacies available to service Californian patients.
+    - **Empower** patients and providers with information to source from appropriately licensed specialty pharmacies.
     - **Validate** interest in a sourcing tool that connects patients and providers with licensed sterile compounding pharmacies.
     """)
 elif menu == "Pharmacy Search":
@@ -44,7 +44,7 @@ elif menu == "Pharmacy Search":
 elif menu == "License Analysis":
 
     st.title('An Analysis of Sterile Compounding Licenses in California')
-    st.write("Analysis by Brittany Campos [https://www.linkedin.com/in/brittanycampos/]")
+    st.write("An interactive analysis by Brittany Campos [https://www.linkedin.com/in/brittanycampos/]")
 
     st.header("Who is issued sterile compounding licenses in California?")
     st.subheader("Facility Types")
