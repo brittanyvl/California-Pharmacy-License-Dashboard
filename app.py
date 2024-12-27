@@ -5,8 +5,8 @@ import pydeck as pdk
 
 
 #Load Data
-all_pharmacies = pd.read_csv('all_pharmacies.csv', dtype=str)
-available_pharmacies = pd.read_csv('available_pharmacies.csv', dtype=str)
+all_pharmacies = pd.read_csv('Notebooks/Learning Selenium/all_pharmacies.csv', dtype=str)
+available_pharmacies = pd.read_csv('Notebooks/Learning Selenium/available_pharmacies.csv', dtype=str)
 
 # Set page config to wide
 st.set_page_config(layout="wide")
