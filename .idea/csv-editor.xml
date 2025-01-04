@@ -38,6 +38,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\all_pharmacies_01.03.2025.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\enriched_pharmacy_data_01032024.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
