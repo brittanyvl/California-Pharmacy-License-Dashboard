@@ -94,7 +94,7 @@ facility_type = st.sidebar.multiselect("**Facility Type**", facility_options, de
 city = st.sidebar.multiselect("**City**", city_options)
 specialty = st.sidebar.multiselect("**Specialty**", unique_specialty_terms)
 condition = st.sidebar.multiselect("**Condition**", unique_condition_terms)
-aaccreditations = st.sidebar.pills("**Claimed Accreditations**", unique_accreditations, selection_mode='multi', default=None)
+accreditations = st.sidebar.pills("**Claimed Accreditations**", unique_accreditations, selection_mode='multi', default=None)
 
 # Main content area with tabs
 st.title("Safer Sourcing: A Study of California Sterile Compounding Licenses")
@@ -106,8 +106,64 @@ tabs = st.tabs(["Search Pharmacies", "License Analysis", "About"])
 
 # Home Tab
 with tabs[0]:
-    st.header("hold")
+    # Apply filters based on user selection
+    filtered_df = pharmacies.copy()
+    cols_to_drop = [
+        'License Status',
+        'LAT',
+        'LONG',
+        'isGovernment',
+        'isSatellite'
+    ]
+    filtered_df.drop(columns=cols_to_drop, inplace=True)
 
+    # Filter by Pharmacy Type
+    if 'Patient Specific (503A)' in pharmacy_type and 'Bulk In-Office (503B)' not in pharmacy_type:
+        filtered_df = filtered_df[filtered_df['Registered Outsourner'] == True]
+    elif 'Bulk In-Office (503B)' in pharmacy_type and 'Patient Specific (503A)' not in pharmacy_type:
+        filtered_df = filtered_df[filtered_df['Registered Outsourner'] == False]
+    # If both are selected, show all records (no filtering)
+    else:
+        filtered_df = filtered_df
+
+    # Filter by Facility Type
+    if facility_type:
+        filtered_df = filtered_df[filtered_df['Facility Type'].isin(facility_type)]
+
+    # Filter by City
+    if city:
+        filtered_df = filtered_df[filtered_df['City'].isin(city)]
+
+    # Filter by Specialty
+    if specialty:
+        filtered_df['Specialties'] = filtered_df['Specialties'].astype(str)
+        specialty_set = set(specialty)
+        filtered_df = filtered_df[
+            (pd.notna(filtered_df['Specialties'])) &
+            (filtered_df['Specialties'].apply(lambda x: all(term in x for term in specialty_set)))
+        ]
+
+    # Filter by Condition
+    if condition:
+        filtered_df['Conditions'] = filtered_df['Conditions'].astype(str)
+        condition_set = set(condition)
+        filtered_df = filtered_df[
+            (pd.notna(filtered_df['Conditions'])) &
+            (filtered_df['Conditions'].apply(lambda x: all(term in x for term in condition_set)))
+        ]
+
+    # Filter by Accreditations
+    if accreditations:
+        filtered_df['Accreditations'] = filtered_df['Accreditations'].astype(str)
+        acc_set = set(accreditations)
+        filtered_df = filtered_df[
+            (pd.notna(filtered_df['Accreditations'])) &
+            (filtered_df['Accreditations'].apply(lambda x: all(term in x for term in acc_set)))
+        ]
+
+    # Display the filtered dataframe (Read-Only view)
+    st.write("Filtered Pharmacies:")
+    st.dataframe(filtered_df, use_container_width=True)
 
 # Profile Tab
 with tabs[1]:
