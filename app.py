@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 # Load Datasets
-pharmacies = pd.read_csv('enriched_pharmacy_data_01032024.csv')
+pharmacies = pd.read_csv('enriched_pharmacy_data_01032024.csv', dtype=str, encoding='utf-8')
 pharmacies['Expiration Date'] = pd.to_datetime(pharmacies['Expiration Date'])
 
 # Count Data
@@ -38,11 +38,63 @@ government_count = pharmacies['isGovernment'].value_counts().reset_index()
 government_count.columns = ['isGovernment', 'Count']
 outsourcer_count = pharmacies['Registered Outsourcer'].value_counts().reset_index()
 outsourcer_count.columns = ['is503B', 'Count']
+unique_facility_types = pharmacies['Facility Type'].dropna().unique()
+facility_options = list(unique_facility_types)
+unique_cities = pharmacies['City'].dropna().unique()
+city_options = sorted(list(unique_cities))
+
+# Specialty Search
+pharmacies['Specialties'] = pharmacies['Specialties'].str.replace(
+    "Ear, Nose, and Throat",
+    "Ear Nose and Throat",
+    regex=False
+)
+specialities = pharmacies.dropna(subset=['Specialties'])
+# Define a function to clean the terms by removing unwanted punctuation
+def clean_term(term):
+    # Remove extra spaces, just in case
+    term = term.strip()
+    return term
+# 1. Flatten all lists from the 'Specialties' column by splitting on commas
+all_terms = list(itertools.chain(*specialities['Specialties'].apply(lambda x: x.split(','))))
+# Apply the cleaning function to each term
+cleaned_terms = [clean_term(term) for term in all_terms]
+# 2. Generate unique terms
+unique_specialty_terms = sorted(set(cleaned_terms))
+
+
+
+# Condition Search
+conditions = pharmacies.dropna(subset=['Conditions'])
+all_conditions = list(itertools.chain(*conditions['Conditions'].apply(lambda x: x.split(','))))
+cleaned_conditions = [clean_term(condition) for condition in all_conditions]
+unique_condition_terms = sorted(set(cleaned_conditions))
+
+#Accredidation Search
+accreditations = pharmacies.dropna(subset=['Accreditations'])
+all_accreditations = list(itertools.chain(*accreditations['Accreditations'].apply(lambda x: x.split(','))))
+cleaned_accreditations = [clean_term(accreditation) for accreditation in all_accreditations]
+unique_accreditations = sorted(set(cleaned_accreditations))
+# Replace the specific value
+unique_accreditations = [
+    "AAHP" if acc == "American Association of Homeopathic Pharmacists" else acc
+    for acc in unique_accreditations
+]
+
 
 # Sidebar for user input
-st.sidebar.title("Search Criteria")
-name = st.sidebar.text_input("Search by Pharmacy Name", value="OSRX")
-
+st.sidebar.title("Sterile Search")
+st.sidebar.write("Search my database of California licensed sterile compounders by location, specialty, condition, and more!")
+st.sidebar.warning(
+    "This is a student project meant to validate interest in a 50 state Sterile Compounding Directory. "
+    "Sign up for my waitlist [here!](https://docs.google.com/forms/d/e/1FAIpQLSfvlpsCtIYb-CVyz9cSaV1IGzoJrksr20bid8TFOyySPNF9pg/viewform?usp=header)"
+)
+pharmacy_type = st.sidebar.segmented_control("**Pharmacy Type**", ['Patient Specific (503A)', 'Bulk In-Office (503B)'], selection_mode="multi", default=['Patient Specific (503A)', 'Bulk In-Office (503B)'])
+facility_type = st.sidebar.multiselect("**Facility Type**", facility_options, default='Sterile Compounding Pharmacy')
+city = st.sidebar.multiselect("**City**", city_options)
+specialty = st.sidebar.multiselect("**Specialty**", unique_specialty_terms)
+condition = st.sidebar.multiselect("**Condition**", unique_condition_terms)
+aaccreditations = st.sidebar.pills("**Claimed Accreditations**", unique_accreditations, selection_mode='multi', default=None)
 
 # Main content area with tabs
 st.title("Safer Sourcing: A Study of California Sterile Compounding Licenses")
@@ -50,7 +102,6 @@ st.write("""
 **California, home to 39 million residents, currently has only 70 licensed pharmacies authorized to provide sterile compounded drugs.**""")
 st.write("""
 This limited availability has raised concerns in the pharmaceutical supply chain, forcing some patients to seek medications illegally or go without. Unfortunately, healthcare providers are also affected. Some have been found purchasing unapproved chemicals, issuing false prescriptions, or rationing expired supplies. These practices increase the risk of harm to patients and undermine the integrity of the healthcare system.""")
-st.info("This application is a student project meant to help educate providers and patients; Please send feedback, concerns, or questions to Brittany Campos at bmagnu1@wgu.edu")
 tabs = st.tabs(["Search Pharmacies", "License Analysis", "About"])
 
 # Home Tab
