@@ -102,68 +102,80 @@ st.write("""
 **California, home to 39 million residents, currently has only 70 licensed pharmacies authorized to provide sterile compounded drugs.**""")
 st.write("""
 This limited availability has raised concerns in the pharmaceutical supply chain, forcing some patients to seek medications illegally or go without. Unfortunately, healthcare providers are also affected. Some have been found purchasing unapproved chemicals, issuing false prescriptions, or rationing expired supplies. These practices increase the risk of harm to patients and undermine the integrity of the healthcare system.""")
-tabs = st.tabs(["Search Pharmacies", "License Analysis", "About"])
+tabs = st.tabs(["**Search Pharmacies**", "**License Analysis**", "**About**"])
 
 # Home Tab
 with tabs[0]:
-    # Apply filters based on user selection
-    filtered_df = pharmacies.copy()
-    cols_to_drop = [
-        'License Status',
-        'LAT',
-        'LONG',
-        'isGovernment',
-        'isSatellite'
-    ]
-    filtered_df.drop(columns=cols_to_drop, inplace=True)
-
-    # Filter by Pharmacy Type
-    if 'Patient Specific (503A)' in pharmacy_type and 'Bulk In-Office (503B)' not in pharmacy_type:
-        filtered_df = filtered_df[filtered_df['Registered Outsourner'] == True]
-    elif 'Bulk In-Office (503B)' in pharmacy_type and 'Patient Specific (503A)' not in pharmacy_type:
-        filtered_df = filtered_df[filtered_df['Registered Outsourner'] == False]
-    # If both are selected, show all records (no filtering)
+    # Check if pharmacy type is selected
+    if not pharmacy_type:
+        st.error("Please select at least one pharmacy type.")  # Display error box if no pharmacy type is selected
     else:
-        filtered_df = filtered_df
-
-    # Filter by Facility Type
-    if facility_type:
-        filtered_df = filtered_df[filtered_df['Facility Type'].isin(facility_type)]
-
-    # Filter by City
-    if city:
-        filtered_df = filtered_df[filtered_df['City'].isin(city)]
-
-    # Filter by Specialty
-    if specialty:
-        filtered_df['Specialties'] = filtered_df['Specialties'].astype(str)
-        specialty_set = set(specialty)
-        filtered_df = filtered_df[
-            (pd.notna(filtered_df['Specialties'])) &
-            (filtered_df['Specialties'].apply(lambda x: all(term in x for term in specialty_set)))
+        # Apply filters based on user selection
+        filtered_df = pharmacies.copy()
+        cols_to_drop = [
+            'License Status',
+            'LAT',
+            'LONG',
+            'isGovernment',
+            'isSatellite'
         ]
+        filtered_df.drop(columns=cols_to_drop, inplace=True)
 
-    # Filter by Condition
-    if condition:
-        filtered_df['Conditions'] = filtered_df['Conditions'].astype(str)
-        condition_set = set(condition)
-        filtered_df = filtered_df[
-            (pd.notna(filtered_df['Conditions'])) &
-            (filtered_df['Conditions'].apply(lambda x: all(term in x for term in condition_set)))
-        ]
+        # Filter by Pharmacy Type (Handle all 4 possible scenarios)
+        if 'Patient Specific (503A)' in pharmacy_type and 'Bulk In-Office (503B)' not in pharmacy_type:
+            # Only 503A selected, filter by Registered Outsourcer = True
+            filtered_df = filtered_df[filtered_df['Registered Outsourcer'] == "False"]
+        elif 'Bulk In-Office (503B)' in pharmacy_type and 'Patient Specific (503A)' not in pharmacy_type:
+            # Only 503B selected, filter by Registered Outsourcer = False
+            filtered_df = filtered_df[filtered_df['Registered Outsourcer'] == "True"]
+        elif 'Patient Specific (503A)' in pharmacy_type and 'Bulk In-Office (503B)' in pharmacy_type:
+            # Both 503A and 503B selected, no filtering on Registered Outsourcer
+            filtered_df = filtered_df
 
-    # Filter by Accreditations
-    if accreditations:
-        filtered_df['Accreditations'] = filtered_df['Accreditations'].astype(str)
-        acc_set = set(accreditations)
-        filtered_df = filtered_df[
-            (pd.notna(filtered_df['Accreditations'])) &
-            (filtered_df['Accreditations'].apply(lambda x: all(term in x for term in acc_set)))
-        ]
+        # Filter by Facility Type
+        if facility_type:
+            filtered_df = filtered_df[filtered_df['Facility Type'].isin(facility_type)]
 
-    # Display the filtered dataframe (Read-Only view)
-    st.write("Filtered Pharmacies:")
-    st.dataframe(filtered_df, use_container_width=True)
+        # Filter by City
+        if city:
+            filtered_df = filtered_df[filtered_df['City'].isin(city)]
+
+        # Filter by Specialty
+        if specialty:
+            filtered_df['Specialties'] = filtered_df['Specialties'].astype(str)
+            specialty_set = set(specialty)
+            filtered_df = filtered_df[
+                (pd.notna(filtered_df['Specialties'])) &
+                (filtered_df['Specialties'].apply(lambda x: all(term in x for term in specialty_set)))
+            ]
+
+        # Filter by Condition
+        if condition:
+            filtered_df['Conditions'] = filtered_df['Conditions'].astype(str)
+            condition_set = set(condition)
+            filtered_df = filtered_df[
+                (pd.notna(filtered_df['Conditions'])) &
+                (filtered_df['Conditions'].apply(lambda x: all(term in x for term in condition_set)))
+            ]
+
+        # Filter by Accreditations
+        if accreditations:
+            filtered_df['Accreditations'] = filtered_df['Accreditations'].astype(str)
+            acc_set = set(accreditations)
+            filtered_df = filtered_df[
+                (pd.notna(filtered_df['Accreditations'])) &
+                (filtered_df['Accreditations'].apply(lambda x: all(term in x for term in acc_set)))
+            ]
+
+        # Check if the filtered dataframe is empty and show an error if it is
+        if filtered_df.empty:
+            st.error("No pharmacies match your criteria; try your search again with fewer restrictions.")
+        else:
+            # Display the filtered dataframe (Read-Only view)
+            st.subheader("Matching Pharmacies:")
+            st.info("Use the sidebar to set your search criteria. Hover over the results table and a download icon will appear to save the table as a CSV locally.")
+            st.dataframe(filtered_df, use_container_width=True)
+
 
 # Profile Tab
 with tabs[1]:
@@ -367,7 +379,42 @@ with tabs[1]:
 
 # Settings Tab
 with tabs[2]:
-    st.header("Settings")
-    st.write("Adjust your preferences here.")
+    st.header("About The Data")
+    st.write("""
+    All pharmacy license data is public knowledge and available through the California State Board of Pharmacy License Verification website located at https://www.pharmacy.ca.gov/. The initial licensure data was collected from this portal on 01/03/2025.
+    """)
+    st.write("""
+    In order to better categorize and search the available licenses the dataset was enriched by researching the individual pharmacies' online prescence.  Using their websites, social media, and other public information we are able to identify what type of services the pharmacy specialises in.
+    """)
+    st.divider()
+    st.header("About the Problem & Project")
+    st.write("""
+    In the United States, the limited availability of licensed sterile compounding pharmacies poses a significant challenge to patients and healthcare providers. In California, for example, the state’s 39 million residents have access to only 70 licensed pharmacies authorized to provide sterile compounded drugs. This scarcity has led some patients to seek medications from unsafe or illegal sources, including black market drugs, research chemicals not intended for human use, or unlicensed drugs transported across state lines from regions with less stringent regulations.
 
+    Such practices expose both patients and pharmacists to serious health risks and legal repercussions, further straining an already vulnerable healthcare system.
+    """)
+    st.write("""
+    Currently, patients and providers must navigate a patchwork of over 50 state-specific databases to locate licensed pharmacies, with each state’s Board of Pharmacy maintaining its own set of regulations and search protocols. This creates significant friction, requiring users to sift through hundreds or thousands of listings, many of which may be irrelevant to their specific needs or location.
+    """)
+    st.subheader("Creating a National Directory of Sterile Compounding Pharmacies")
+    st.write("""
+    My vision is to develop a comprehensive, nationwide directory of licensed sterile compounding pharmacies. By consolidating data from all 50 states into a single platform, we could simplify the search process for patients and healthcare providers, making it easier to find pharmacies that meet their specific needs.
 
+    This application serves as a prototype, focusing on California as a starting point. With additional validation, safeguards, and educational resources, this platform could evolve into a trusted tool, empowering patients and healthcare providers to source sterile compounded drugs safely and efficiently, while reducing the risk of harm.
+    """)
+    st.write("""
+    The broader goal is to expand this concept to a nationwide scale, enabling easier access to licensed pharmacies and ultimately improving patient outcomes by ensuring safer, legal access to critical medications.
+    """)
+    st.divider()
+    st.header("About the Author")
+    st.markdown("""
+    👋 Hi, I'm Brittany Campos — a seasoned analyst and operations leader with a passion for bridging the gap between business and technology. With over four years of experience in supply chain optimization, particularly in sourcing sterile and compounded drugs, I’ve developed a unique skill set that merges operational expertise with technical proficiency.
+
+    Currently, I am a Software Engineering student, expected to graduate in March 2025, where I'm honing my skills in Python, SQL, and data engineering. My experience spans implementing enterprise systems like Salesforce B2B Commerce and Oracle NetSuite, as well as developing custom solutions that streamline processes, improve compliance, and deliver impactful data products. 
+
+    This project is a example of my passion for pharmacy, compliance, and data—bringing those interests together to solve complex business challenges. I hope you find it useful, and if you have any questions or would like to connect, please don't hesitate to reach out to me on [LinkedIn](https://www.linkedin.com/in/brittanycampos/).
+
+    Looking forward to hearing from you!
+    """)
+    st.info("""
+    ***Interested In This Data for Another State? Sign up for my [waitlist!](https://docs.google.com/forms/d/e/1FAIpQLSfvlpsCtIYb-CVyz9cSaV1IGzoJrksr20bid8TFOyySPNF9pg/viewform?usp=header)""")
